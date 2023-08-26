@@ -34,7 +34,7 @@ export async function newProducts(ctx: Context, userId: string) {
     });
 
     if (!products || products.length === 0) {
-        await ctx.reply(`Tanlangan bo'limda boshqa faol e'lon yo'q`);
+        await ctx.reply(`Заказов пока нет`);
     } else {
         products.forEach(async (product,index) => {
             try {
@@ -42,13 +42,13 @@ export async function newProducts(ctx: Context, userId: string) {
                 let orderId = product.dataValues?.order?.order_id;
                 let model = product.dataValues?.order?.model?.name;
                 let type = product.dataValues?.order?.model?.furniture_type.name;
-                await ctx.reply(`\nOrderId: ${orderId}\nMebel: ${type}\nModel: ${model}`, {
+                await ctx.reply(`\nОрдерИд : ${orderId}\nМебель: ${type}\nМодель: ${model}`, {
                     parse_mode: "HTML",
                     reply_markup: {
                         inline_keyboard: [
                             [
-                                { text: "Bekor qilish", callback_data: `reject=${id}` },
-                                { text: "Qabul qilish", callback_data: `accept=${id}` },
+                                { text: "Отмена", callback_data: `reject=${id}` },
+                                { text: "Принял", callback_data: `accept=${id}` },
                             ],
                         ],
                     },

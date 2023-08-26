@@ -18,7 +18,7 @@ composer.action(/(^accept=[\s\S])[\w\W]+/g, async (ctx) => {
     const product = await Orders.findByPk(id)
     console.log(product?.dataValues);
 
-    await ctx.editMessageText(text + "\n\n<b>Qabul qilindi</b>", {
+    await ctx.editMessageText(text + "\n\n<b>✅Принял</b>", {
         parse_mode: "HTML",
     });
 });
@@ -36,7 +36,7 @@ composer.action(/(^reject=[\s\S])[\w\W]+/g, async (ctx) => {
     const product = await Orders.findByPk(id);
     console.log(product?.dataValues);
 
-    await ctx.editMessageText(text + "\n\n<b>Bekor qilindi</b>", {
+    await ctx.editMessageText(text + "\n\n<b>🚫Отменено</b>", {
         parse_mode: "HTML",
     });
 });

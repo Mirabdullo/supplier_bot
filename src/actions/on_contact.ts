@@ -10,7 +10,7 @@ composer.on('contact', async (ctx) => {
 
     const user = await User.findOne({ where: { phone: contact.phone_number } })
     if (!user) {
-        await ctx.reply(`Iltimos <b>Woodline</b> bilan bog'langan raqamingizni namunada ko'rsatilganidek kiriting!\n\nNamuna: +998951234567`, {
+        await ctx.reply(`Введите свой контактный номер которое привязан  к <b>Woodline</b>, как показано в образце!\n\Образец: +998951234567`, {
             parse_mode: "HTML",
             reply_markup: { remove_keyboard: true }
         });
