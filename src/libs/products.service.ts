@@ -1,11 +1,10 @@
-import { Context } from "telegraf";
+import { Context, Markup } from "telegraf";
 import { Orders } from "../models/order.model";
 import { Model } from "../models/model.model";
 import { FurnitureType } from "../models/furniture_type.model";
 import { WareHouseProduct } from "../models/product.model";
 
-
-export async function newProducts(ctx: Context, userId: string){
+export async function newProducts(ctx: Context, userId: string) {
     const products = await WareHouseProduct.findAll({
         where: {
             "$order.status$": "NEW",
@@ -24,31 +23,40 @@ export async function newProducts(ctx: Context, userId: string){
                         include: [
                             {
                                 model: FurnitureType,
-                                attributes: ["name"]
-                            }
-                        ]
+                                attributes: ["name"],
+                            },
+                        ],
                     },
-
-                ]
-            }
+                ],
+            },
         ],
         order: [["createdAt", "ASC"]],
-        // offset: offset,
-        // limit: 1
-    })
+    });
 
     if (!products || products.length === 0) {
-        await ctx.reply(`Tanlangan bo'limda boshqa faol e'lon yo'q`)
+        await ctx.reply(`Tanlangan bo'limda boshqa faol e'lon yo'q`);
     } else {
-        products.forEach(async (product) => {
+        products.forEach(async (product,index) => {
             try {
-                let txt = `Keyingi elonni ko'rish ➡️ `
-                console.log(product);
-                // const {} = product.dataValues
-                // await ctx.reply(`Product info: \n\n ${product?.order?.order_id}`)
+                let id = product.dataValues?.order_id;
+                let orderId = product.dataValues?.order?.order_id;
+                let model = product.dataValues?.order?.model?.name;
+                let type = product.dataValues?.order?.model?.furniture_type.name;
+                await ctx.reply(`\nOrderId: ${orderId}\nMebel: ${type}\nModel: ${model}`, {
+                    parse_mode: "HTML",
+                    reply_markup: {
+                        inline_keyboard: [
+                            [
+                                { text: "Bekor qilish", callback_data: `reject=${id}` },
+                                { text: "Qabul qilish", callback_data: `accept=${id}` },
+                            ],
+                        ],
+                    },
+                });
+
             } catch (error) {
                 console.log(error);
             }
-        })
+        });
     }
 }

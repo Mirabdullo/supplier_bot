@@ -5,14 +5,17 @@ import { newProducts } from "../libs/products.service";
 
 const composer = new Composer()
 
+
+
+
 composer.on('message', async (ctx) => {
+try {
     if ('text' in ctx.update.message) {    
         console.log(ctx.update.message.text);
         const user = await User.findOne({ where: { phone: ctx.update.message.text } })
-        
         if (user) {
-            console.log(user.dataValues.id);
-            let id = user.dataValues.id
+            console.log(user.dataValues);
+            let id = user.dataValues.comp_id
             await newProducts(ctx, id)
         } else {
             await ctx.reply(`Iye brat bizi bazada yo'q ekansizu🤨`, {
@@ -20,7 +23,13 @@ composer.on('message', async (ctx) => {
             });
         }
     }
+} catch (error) {
+    console.log(error);
+}
     
 })
+
+
+
 
 bot.use(composer.middleware())

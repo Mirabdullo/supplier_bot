@@ -8,15 +8,7 @@ export const bot = new Telegraf(token);
 
 const start = async () => {
     try {
-        // await sequelize.authenticate();
-        await sequelize.authenticate().then(
-            function (err) {
-                console.log("Connection has been established successfully.");
-            },
-            function (err) {
-                console.log("Unable to connect to the database:", err);
-            }
-        );
+        await sequelize.authenticate();
         await sequelize.sync();
         console.log("Connection has been astablished successfully");
     } catch (error) {
@@ -26,4 +18,4 @@ const start = async () => {
 
 start();
 
-bot.launch();
+bot.launch()
