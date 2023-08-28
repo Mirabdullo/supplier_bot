@@ -4,6 +4,7 @@ import { Model } from "../models/model.model";
 import { FurnitureType } from "../models/furniture_type.model";
 import { WareHouseProduct } from "../models/product.model";
 
+
 export async function newProducts(ctx: Context, userId: string) {
     const products = await WareHouseProduct.findAll({
         where: {
@@ -33,9 +34,8 @@ export async function newProducts(ctx: Context, userId: string) {
         order: [["createdAt", "ASC"]],
     });
 
-    if (!products || products.length === 0) {
-        await ctx.reply(`Заказов пока нет`);
-    } else {
+
+    if (products && products.length > 0) {
         products.forEach(async (product,index) => {
             try {
                 let id = product.dataValues?.order_id;
@@ -60,3 +60,4 @@ export async function newProducts(ctx: Context, userId: string) {
         });
     }
 }
+

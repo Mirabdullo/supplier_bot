@@ -1,5 +1,5 @@
 export interface IUser {
-    id: string;
+    id?: string;
     name?: string;
     phone: string;
     password: string;
@@ -7,4 +7,6 @@ export interface IUser {
     role: string;
     comp_id?: string
     is_active: boolean;
+    use_bot: boolean;
+    bot_id: number;
 }

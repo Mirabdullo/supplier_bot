@@ -2,6 +2,8 @@ import { Composer, Context, Telegraf } from "telegraf";
 import { Orders } from "../models/order.model";
 import { bot } from "../core";
 import { InlineQueryResultArticle } from "typegram";
+import { User } from "../models/user.model";
+import { newProducts } from "../libs/products.service";
 
 const composer = new Composer();
 
@@ -40,5 +42,20 @@ composer.action(/(^reject=[\s\S])[\w\W]+/g, async (ctx) => {
         parse_mode: "HTML",
     });
 });
+
+
+composer.action("start", async (ctx) => { 
+    console.log(ctx.from);
+    let id = ctx.from?.id
+    const user = await User.findOne({ where: { bot_id: id } })
+
+    if (user) {
+        await newProducts(ctx, user.dataValues.comp_id)
+    }
+})
+
+
+
+
 
 bot.use(composer.middleware());

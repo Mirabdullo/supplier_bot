@@ -10,12 +10,21 @@ composer.on('contact', async (ctx) => {
 
     const user = await User.findOne({ where: { phone: contact.phone_number } })
     if (!user) {
-        await ctx.reply(`Введите свой контактный номер которое привязан  к <b>Woodline</b>, как показано в образце!\n\Образец: +998951234567`, {
+        await ctx.reply(`Неправильный номер.\nВведите свой контактный номер которое привязан  к <b>Woodline</b>, как показано в образце!\n\Образец: +998951234567`, {
             parse_mode: "HTML",
             reply_markup: { remove_keyboard: true }
         });
         
     } else {
+        if ("use_bot" in user) { 
+            if(user.use_bot){
+                await newProducts(ctx, user.dataValues.comp_id)
+            } else {
+                await ctx.reply("Номер принят. Для использования бота обратитесь к администратору Woodline.\n\nПриносим извинения за неудобства!", {
+                    parse_mode: "HTML"
+                })
+            }
+        }
         let id = user.dataValues.comp_id
         await newProducts(ctx, id)
     } 

@@ -37,4 +37,11 @@ export const User = sequelize.define("sellers", {
     comp_id: {
         type: DataTypes.UUID,
     },
+    use_bot: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+    },
+    bot_id: {
+        type: DataTypes.BIGINT
+    }
 });
