@@ -24,7 +24,7 @@ composer.on("message", async (ctx) => {
                 }
                 else {
                     let use = user.dataValues.use_bot
-                        if (use && telegramId === bot_id) {
+                        if (use && telegramId === parseInt(bot_id)) {
                             await newProducts(ctx, id);
                         } else {
                             await ctx.reply(
