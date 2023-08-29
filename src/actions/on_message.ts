@@ -30,6 +30,7 @@ composer.on("message", async (ctx) => {
                     }
                 }
             } else {
+                console.log("user null");
                 await ctx.reply(
                     `Неправильный номер.\nЕсли у вас возникли проблемы с регистрацией, обратитесь к <a href="https://t.me/mirabdulloh1">администратору</a>.`,
                     {
