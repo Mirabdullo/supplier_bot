@@ -4,10 +4,13 @@ import { bot } from "../core";
 import { InlineQueryResultArticle } from "typegram";
 import { User } from "../models/user.model";
 import { newProducts } from "../libs/products.service";
+import { WareHouseProduct } from "../models/product.model";
+import { createWarehouseProduct } from "../libs/warehouse.service";
 
 const composer = new Composer();
 
 composer.action(/(^accept=[\s\S])[\w\W]+/g, async (ctx) => {
+    let telegramId = ctx.update.callback_query.from.id
     let text: any;
     if (ctx.update.callback_query && ctx.update.callback_query.message) {
         const message = ctx.update.callback_query.message;
@@ -16,22 +19,30 @@ composer.action(/(^accept=[\s\S])[\w\W]+/g, async (ctx) => {
         }
     }
     const id = ctx.match[0].split("=")[1];
-
+    
     const product = await Orders.findByPk(id)
-    console.log("accept: ", product?.dataValues?.id);
-
+    
+    
     if (product?.dataValues.status === "ACCEPTED") {
         await ctx.answerCbQuery("Заказ принят через сайт!")
     }
-
+    
     if (product?.dataValues.status === "REJECTED") {
         await ctx.answerCbQuery("Заказ отменен через сайт!")
     }
-
+    
+    const ifexists=  await createWarehouseProduct(ctx, product?.dataValues?.id, telegramId)
+    
+    if (!ifexists) {
+        return;
+    }
+    
+    console.log("accept: ", product?.dataValues?.id);
     if (product && "status" in product) {
         product.status = "ACCEPTED"
         await product.save()
     }
+
 
     await ctx.editMessageText(text + "\n\n<b>✅Принял</b>", {
         parse_mode: "HTML",

@@ -12,21 +12,15 @@ export async function newProducts(ctx: Context, compId: string) {
             "$model.company_id$": compId,
             is_active: true
         },
+        attributes: ["id", "order_id", "status"],
         include: [
             {
-                model: Orders,
-                as: "order",
-                attributes: ["id", "order_id", "status"],
+                model: Model,
+                attributes: ["name", "code", "company_id"],
                 include: [
                     {
-                        model: Model,
-                        attributes: ["name", "code", "company_id"],
-                        include: [
-                            {
-                                model: FurnitureType,
-                                attributes: ["name"],
-                            },
-                        ],
+                        model: FurnitureType,
+                        attributes: ["name"],
                     },
                 ],
             },
@@ -34,15 +28,14 @@ export async function newProducts(ctx: Context, compId: string) {
         order: [["createdAt", "ASC"]],
     });
 
-    console.log(products);
 
     if (products && products.length > 0) {
         products.forEach(async (product,index) => {
             try {
-                let id = product.dataValues?.order_id;
-                let orderId = product.dataValues?.order?.order_id;
-                let model = product.dataValues?.order?.model?.name;
-                let type = product.dataValues?.order?.model?.furniture_type.name;
+                let id = product.dataValues?.id;
+                let orderId = product.dataValues?.order_id;
+                let model = product.dataValues?.model?.name;
+                let type = product.dataValues?.model?.furniture_type?.name;
                 await ctx.reply(`\nОрдерИд : ${orderId}\nМебель: ${type}\nМодель: ${model}`, {
                     parse_mode: "HTML",
                     reply_markup: {

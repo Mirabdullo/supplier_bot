@@ -1,6 +1,5 @@
 import { DataTypes, UUIDV4 } from "sequelize";
 import { sequelize } from "../core/db";
-import { Model } from "./model.model";
 
 export const FurnitureType = sequelize.define("furniture_type", {
   id: {
