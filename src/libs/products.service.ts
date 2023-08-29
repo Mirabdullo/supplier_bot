@@ -5,11 +5,11 @@ import { FurnitureType } from "../models/furniture_type.model";
 import { WareHouseProduct } from "../models/product.model";
 
 
-export async function newProducts(ctx: Context, userId: string) {
+export async function newProducts(ctx: Context, compId: string) {
     const products = await WareHouseProduct.findAll({
         where: {
             "$order.status$": "NEW",
-            "$order.model.company_id$": userId,
+            "$order.model.company_id$": compId,
             is_active: true
         },
         include: [
@@ -34,6 +34,7 @@ export async function newProducts(ctx: Context, userId: string) {
         order: [["createdAt", "ASC"]],
     });
 
+    console.log(products);
 
     if (products && products.length > 0) {
         products.forEach(async (product,index) => {
