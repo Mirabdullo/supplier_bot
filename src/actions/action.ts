@@ -18,7 +18,20 @@ composer.action(/(^accept=[\s\S])[\w\W]+/g, async (ctx) => {
     const id = ctx.match[0].split("=")[1];
 
     const product = await Orders.findByPk(id)
-    console.log(product?.dataValues);
+    console.log("accept: ", product?.dataValues?.id);
+
+    if (product?.dataValues.status === "ACCEPTED") {
+        await ctx.answerCbQuery("Заказ принят через сайт!")
+    }
+
+    if (product?.dataValues.status === "REJECTED") {
+        await ctx.answerCbQuery("Заказ отменен через сайт!")
+    }
+
+    if (product && "status" in product) {
+        product.status = "ACCEPTED"
+        await product.save()
+    }
 
     await ctx.editMessageText(text + "\n\n<b>✅Принял</b>", {
         parse_mode: "HTML",
@@ -34,9 +47,20 @@ composer.action(/(^reject=[\s\S])[\w\W]+/g, async (ctx) => {
         }
     }
     const id = ctx.match[0].split("=")[1];
-    console.log(id);
     const product = await Orders.findByPk(id);
-    console.log(product?.dataValues);
+    console.log("reject: ", product?.dataValues?.id);
+    if (product?.dataValues.status === "ACCEPTED") {
+        await ctx.answerCbQuery("Заказ принят через сайт!")
+    }
+
+    if (product?.dataValues.status === "REJECTED") {
+        await ctx.answerCbQuery("Заказ отменен через сайт!")
+    }
+
+    if (product && "status" in product) {
+        product.status = "REJECTED"
+        await product.save()
+    }
 
     await ctx.editMessageText(text + "\n\n<b>🚫Отменено</b>", {
         parse_mode: "HTML",
@@ -45,9 +69,14 @@ composer.action(/(^reject=[\s\S])[\w\W]+/g, async (ctx) => {
 
 
 composer.action("start", async (ctx) => { 
-    console.log(ctx.from);
     let id = ctx.from?.id
     const user = await User.findOne({ where: { bot_id: id } })
+    console.log(ctx.update.callback_query.message);
+    let messageId = ctx.update.callback_query.message?.message_id
+
+    if (messageId) {
+        ctx.deleteMessage(messageId)
+    }
 
     if (user) {
         await newProducts(ctx, user.dataValues.comp_id)
