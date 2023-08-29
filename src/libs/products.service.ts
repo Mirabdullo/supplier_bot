@@ -6,10 +6,10 @@ import { WareHouseProduct } from "../models/product.model";
 
 
 export async function newProducts(ctx: Context, compId: string) {
-    const products = await WareHouseProduct.findAll({
+    const products = await Orders.findAll({
         where: {
-            "$order.status$": "NEW",
-            "$order.model.company_id$": compId,
+            status: "NEW",
+            "$model.company_id$": compId,
             is_active: true
         },
         include: [
