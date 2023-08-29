@@ -29,10 +29,18 @@ composer.on("message", async (ctx) => {
                         }
                     }
                 }
-            } else {
+            }
+            else if (user && "role" in user) {
+                if (user["role"] !== "PRODUCER") {
+                    await ctx.reply(`Извините, вы не можете использовать этого бота!`, {
+                        parse_mode: "HTML"
+                    })
+                }
+            }
+            else {
                 console.log("user null");
                 await ctx.reply(
-                    `Неправильный номер.\nЕсли у вас возникли проблемы с регистрацией, обратитесь к <a href="https://t.me/mirabdulloh1">администратору</a>.`,
+                    `Неправильный номер.\nЕсли у вас возникли проблемы с регистрацией, обратитесь к <a href="https://t.me/Fatkhull01">администратору</a>.`,
                     {
                         parse_mode: "HTML",
                         disable_web_page_preview: true,
