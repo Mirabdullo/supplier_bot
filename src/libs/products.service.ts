@@ -58,6 +58,10 @@ export async function newProducts(ctx: Context, userId: string) {
                 console.log(error);
             }
         });
+    } else {
+        await ctx.reply("Новых заказов пока нет!", {
+            parse_mode: "HTML"
+        })
     }
 }
 
