@@ -2,42 +2,20 @@ import { Context, Markup } from "telegraf";
 import { Orders } from "../models/order.model";
 import { Models } from "../models/model.model";
 import { FurnitureType } from "../models/furniture_type.model";
-import { Model } from "sequelize";
 
-export async function newProducts(ctx: Context, compId: string) {
-    const products = await Orders.findAll({
-        where: {
-            status: "NEW",
-            "$model.company_id$": compId,
-            is_active: true,
-        },
-        attributes: ["id", "order_id", "status"],
-        include: [
-            {
-                model: Models,
-                attributes: ["name", "code", "company_id"],
-                include: [
-                    {
-                        model: FurnitureType,
-                        attributes: ["name"],
-                    },
-                ],
-            },
-        ],
-        order: [["createdAt", "ASC"]],
-    });
 
-    console.log(products.length);
 
-    const batchSize = 25; // Batch size for sending products
 
-    if (products && products.length > 0) {
-        let batchIndex = 0;
+const PAGE_SIZE = 15
 
-        async function sendNextBatch() {
-            const currentBatch = products.slice(batchIndex, batchIndex + batchSize);
+export async function sendPageWithButton(ctx: Context, pageIndex: number, compId: string) {
+    const products = await getPageProducts(pageIndex, compId);
+    let pageProducts = products.slice(pageIndex * PAGE_SIZE, (pageIndex + 1) * PAGE_SIZE);
 
-            for (const product of currentBatch) {
+        if (pageProducts.length > 0) {
+            const keyboard = constructInlineKeyboard(pageIndex, products.length);
+            console.log(keyboard);
+            for (let product of pageProducts) { 
                 try {
                     let id = product.dataValues?.id;
                     let orderId = product.dataValues?.order_id;
@@ -57,104 +35,23 @@ export async function newProducts(ctx: Context, compId: string) {
                 } catch (error) {
                     console.log(error);
                 }
+
             }
-
-            batchIndex += batchSize;
-
-            if (batchIndex < products.length) {
-                setTimeout(sendNextBatch, 60000); // Wait 1 minute before sending the next batch
-            } else {
-                console.log("All products sent.");
-            }
-        }
-
-        sendNextBatch();
-    } else {
-        await ctx.reply("Новых заказов пока нет!", {
-            parse_mode: "HTML",
-        });
-    }
-
-    // if (products && products.length > 0) {
-    //     products.forEach(async (product, index) => {
-    //         try {
-    //             let id = product.dataValues?.id;
-    //             let orderId = product.dataValues?.order_id;
-    //             let model = product.dataValues?.model?.name;
-    //             let type = product.dataValues?.model?.furniture_type?.name;
-    //             await ctx.reply(`\nОрдерИд : ${orderId}\nМебель: ${type}\nМодель: ${model}`, {
-    //                 parse_mode: "HTML",
-    //                 reply_markup: {
-    //                     inline_keyboard: [
-    //                         [
-    //                             { text: "Отмена", callback_data: `reject=${id}` },
-    //                             { text: "Принял", callback_data: `accept=${id}` },
-    //                         ],
-    //                     ],
-    //                 },
-    //             });
-    //         } catch (error) {
-    //             console.log(error);
-    //         }
-    //     });
-    // } else {
-    //     await ctx.reply("Новых заказов пока нет!", {
-    //         parse_mode: "HTML",
-    //     });
-    // }
-}
-
-let batchSize = 20;
-
-export async function sendProductsPage(ctx: Context, pageNumber: number, compId: string) {
-    try {
-        const offset = pageNumber * batchSize;
-        const products = await productsFromDatabase(offset, batchSize, compId);
-
-        if (products.length > 0) {
-            for (const product of products) {
-                let id = product.dataValues?.id;
-                let orderId = product.dataValues?.order_id;
-                let model = product.dataValues?.model?.name;
-                let type = product.dataValues?.model?.furniture_type?.name;
-                await ctx.reply(`\nОрдерИд : ${orderId}\nМебель: ${type}\nМодель: ${model}`, {
-                    parse_mode: "HTML",
-                    reply_markup: {
-                        inline_keyboard: [
-                            [
-                                { text: "Отмена", callback_data: `reject=${id}` },
-                                { text: "Принял", callback_data: `accept=${id}` },
-                            ],
-                        ],
-                    },
-                });
-            }
-
-            // Create inline keyboard buttons for pagination
-            const nextPageNumber = pageNumber + 1;
-            const prevPageNumber = pageNumber - 1;
-            const keyboard = [];
-            if (prevPageNumber >= 0) {
-                keyboard.push({ text: "Previous", callback_data: `view_page:${prevPageNumber}` });
-            }
-            if (products.length === batchSize) {
-                keyboard.push({ text: "Next", callback_data: `view_page:${nextPageNumber}` });
-            }
-
-            await ctx.reply("Select a page:", {
+            await ctx.reply("Keyingi produktlarni ko'rish", {
+                parse_mode: "HTML",
                 reply_markup: {
-                    inline_keyboard: [keyboard],
+                    inline_keyboard: keyboard,
                 },
             });
         } else {
-            await ctx.reply("No more products to show.");
+            ctx.reply("Новых заказов пока нет!", {
+                parse_mode: "HTML",
+            });
         }
-    } catch (error) {
-        console.log(error);
-    }
 }
 
-async function productsFromDatabase(offset: number, limit: number, compId: string) {
+
+async function getPageProducts(pageIndex: number, compId: string) {
     const products = await Orders.findAll({
         where: {
             status: "NEW",
@@ -177,7 +74,16 @@ async function productsFromDatabase(offset: number, limit: number, compId: strin
         order: [["createdAt", "ASC"]],
     });
 
-    console.log(products.length);
-
-    return products.slice(offset, offset + limit);
+     return products
 }
+
+function constructInlineKeyboard(pageIndex: number, productsCount: number) {
+    if (productsCount > PAGE_SIZE * (pageIndex + 1)) {
+        return [[{ text: "Keyingisi", callback_data: `next_page=${pageIndex}` }]];
+    } else {
+        return [];
+    }
+}
+
+
+

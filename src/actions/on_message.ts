@@ -1,7 +1,7 @@
 import { Composer, Context } from "telegraf";
 import { bot } from "../core";
 import { User } from "../models/user.model";
-import { newProducts, sendProductsPage } from "../libs/products.service";
+import { sendPageWithButton } from "../libs/products.service";
 
 const composer = new Composer();
 
@@ -26,8 +26,7 @@ composer.on("message", async (ctx) => {
                     
                     let use = user.dataValues.use_bot
                     if (use && telegramId === parseInt(bot_id)) {
-                            // sendProductsPage(ctx, 0, id)
-                            await newProducts(ctx, id);
+                        await sendPageWithButton(ctx, 0, id)
                         } else {
                             await ctx.reply(
                                 "Номер принят. Для использования бота обратитесь к администратору Woodline.\n\nПриносим извинения за неудобства!",

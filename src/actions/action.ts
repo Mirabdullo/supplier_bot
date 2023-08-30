@@ -1,10 +1,8 @@
-import { Composer, Context, Telegraf } from "telegraf";
+import { Composer } from "telegraf";
 import { Orders } from "../models/order.model";
 import { bot } from "../core";
-import { InlineQueryResultArticle } from "typegram";
 import { User } from "../models/user.model";
-import { newProducts, sendProductsPage } from "../libs/products.service";
-import { WareHouseProduct } from "../models/product.model";
+import { sendPageWithButton } from "../libs/products.service";
 import { createWarehouseProduct } from "../libs/warehouse.service";
 
 const composer = new Composer();
@@ -90,29 +88,30 @@ composer.action("start", async (ctx) => {
     }
 
     if (user) {
-        await newProducts(ctx, user.dataValues.comp_id)
+        let compId = user.dataValues.comp_id
+        const currentPage = parseInt(ctx.match[1] || "0");
+
+        await sendPageWithButton(ctx, currentPage + 1 ,compId);
+
     }
 })
 
 
-composer.action(/view_page:(\d+)/, async (ctx) => {
-try {
+
+
+
+composer.action(/next_page=(\d+)/, async (ctx) => {
     let telegramId = ctx.update.callback_query.from.id
 
     const user = await User.findOne({ where: { bot_id: telegramId } })
-    
-    const pageNumber = parseInt(ctx.match[1]);
+    let messageId = ctx.update.callback_query.message?.message_id
     if (user) {
-        let id = user.dataValues.id
-        let bot_id = user.dataValues.bot_id
-        let use = user?.dataValues.use_bot
         let compId = user.dataValues.comp_id
-        sendProductsPage(ctx, pageNumber, compId);
-    }
+        const currentPage = parseInt(ctx.match[1] || "0");
 
-} catch (error) {
-    console.log(error);
-}
+        await sendPageWithButton(ctx, currentPage + 1 ,compId);
+
+    }
 });
 
 
