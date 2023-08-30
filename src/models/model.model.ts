@@ -3,7 +3,7 @@ import { sequelize } from "../core/db";
 import { FurnitureType } from "./furniture_type.model";
 
 
-export const Model = sequelize.define("model", {
+export const Models = sequelize.define("model", {
     id: {
         type: DataTypes.UUID,
         primaryKey: true,
@@ -43,4 +43,4 @@ export const Model = sequelize.define("model", {
     }
 });
 
-Model.belongsTo(FurnitureType, {foreignKey: "type_id"})
+Models.belongsTo(FurnitureType, {foreignKey: "type_id"})

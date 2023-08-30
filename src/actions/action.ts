@@ -3,7 +3,7 @@ import { Orders } from "../models/order.model";
 import { bot } from "../core";
 import { InlineQueryResultArticle } from "typegram";
 import { User } from "../models/user.model";
-import { newProducts } from "../libs/products.service";
+import { newProducts, sendProductsPage } from "../libs/products.service";
 import { WareHouseProduct } from "../models/product.model";
 import { createWarehouseProduct } from "../libs/warehouse.service";
 
@@ -93,6 +93,27 @@ composer.action("start", async (ctx) => {
         await newProducts(ctx, user.dataValues.comp_id)
     }
 })
+
+
+composer.action(/view_page:(\d+)/, async (ctx) => {
+try {
+    let telegramId = ctx.update.callback_query.from.id
+
+    const user = await User.findOne({ where: { bot_id: telegramId } })
+    
+    const pageNumber = parseInt(ctx.match[1]);
+    if (user) {
+        let id = user.dataValues.id
+        let bot_id = user.dataValues.bot_id
+        let use = user?.dataValues.use_bot
+        let compId = user.dataValues.comp_id
+        sendProductsPage(ctx, pageNumber, compId);
+    }
+
+} catch (error) {
+    console.log(error);
+}
+});
 
 
 

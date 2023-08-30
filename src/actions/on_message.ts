@@ -1,7 +1,7 @@
 import { Composer, Context } from "telegraf";
 import { bot } from "../core";
 import { User } from "../models/user.model";
-import { newProducts } from "../libs/products.service";
+import { newProducts, sendProductsPage } from "../libs/products.service";
 
 const composer = new Composer();
 
@@ -23,8 +23,10 @@ composer.on("message", async (ctx) => {
                     })
                 }
                 else {
+                    
                     let use = user.dataValues.use_bot
-                        if (use && telegramId === parseInt(bot_id)) {
+                    if (use && telegramId === parseInt(bot_id)) {
+                            // sendProductsPage(ctx, 0, id)
                             await newProducts(ctx, id);
                         } else {
                             await ctx.reply(

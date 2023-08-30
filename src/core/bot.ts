@@ -17,27 +17,6 @@ const start = async () => {
     }
 };
 
-
-const MAX_MESSAGE_PER_SECOND = 30
-let lastMessageTimeStamp = 0;
-let messageCount = 0;
-
-bot.use((ctx: Context, next) => {
-    const now = Date.now();
-
-    if (now - lastMessageTimeStamp > 1000) {
-        lastMessageTimeStamp = now;
-        messageCount = 0
-    }
-
-    if (messageCount >= MAX_MESSAGE_PER_SECOND) {
-        ctx.reply('Rate limit exceeded. Please try again later.');
-    } else {
-      messageCount++;
-      next();
-    }
-})
-
 start();
 
 bot.launch()

@@ -1,7 +1,7 @@
 
 import { DataTypes, UUIDV4 } from "sequelize";
 import { sequelize } from "../core/db";
-import { Model } from "./model.model";
+import { Models } from "./model.model";
 
  export const Orders = sequelize.define("orders", {
     id: {
@@ -73,6 +73,6 @@ import { Model } from "./model.model";
 });
 
 
-Orders.belongsTo(Model, {foreignKey: "model_id"})
+Orders.belongsTo(Models, {foreignKey: "model_id"})
 
 
