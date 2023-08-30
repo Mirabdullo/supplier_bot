@@ -2,7 +2,6 @@ import { Context, Markup } from "telegraf";
 import { Orders } from "../models/order.model";
 import { Model } from "../models/model.model";
 import { FurnitureType } from "../models/furniture_type.model";
-import { WareHouseProduct } from "../models/product.model";
 
 
 export async function newProducts(ctx: Context, compId: string) {
@@ -10,7 +9,7 @@ export async function newProducts(ctx: Context, compId: string) {
         where: {
             status: "NEW",
             "$model.company_id$": compId,
-            is_active: true
+            is_active: true,
         },
         attributes: ["id", "order_id", "status"],
         include: [
@@ -29,8 +28,11 @@ export async function newProducts(ctx: Context, compId: string) {
     });
 
 
+
+
+
     if (products && products.length > 0) {
-        products.forEach(async (product,index) => {
+        products.forEach(async (product, index) => {
             try {
                 let id = product.dataValues?.id;
                 let orderId = product.dataValues?.order_id;
@@ -47,15 +49,13 @@ export async function newProducts(ctx: Context, compId: string) {
                         ],
                     },
                 });
-
             } catch (error) {
                 console.log(error);
             }
         });
     } else {
         await ctx.reply("Новых заказов пока нет!", {
-            parse_mode: "HTML"
-        })
+            parse_mode: "HTML",
+        });
     }
 }
-
