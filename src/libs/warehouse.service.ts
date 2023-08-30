@@ -9,7 +9,8 @@ export async function createWarehouseProduct(ctx: Context, orderId: string, id: 
     try {
         const user = await User.findOne({ where: { bot_id: id } })
         let comp_id = user?.dataValues?.comp_id
-        const warehouse = await Warehouse.findOne({where: {company_id: comp_id}})
+        const warehouse = await Warehouse.findOne({ where: { company_id: comp_id } })
+        console.log(warehouse);
         if (!warehouse) {
             ctx.answerCbQuery("К сожалению, ваш склад не добавлен в наш список. Пожалуйста, свяжитесь с администрацией Woodline!")
             return null;
