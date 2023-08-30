@@ -108,7 +108,7 @@ composer.action(/next_page=(\d+)/, async (ctx) => {
     if (user) {
         let compId = user.dataValues.comp_id
         const currentPage = parseInt(ctx.match[1] || "0");
-
+        ctx.deleteMessage(messageId)
         await sendPageWithButton(ctx, currentPage + 1 ,compId);
 
     }

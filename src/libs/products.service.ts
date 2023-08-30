@@ -37,12 +37,18 @@ export async function sendPageWithButton(ctx: Context, pageIndex: number, compId
                 }
 
             }
-            await ctx.reply("Посмотреть больше продуктов", {
-                parse_mode: "HTML",
-                reply_markup: {
-                    inline_keyboard: keyboard,
-                },
-            });
+
+            if (products.length - PAGE_SIZE * pageIndex > PAGE_SIZE) {
+                await ctx.reply("Посмотреть больше продуктов", {
+                    parse_mode: "HTML",
+                    reply_markup: {
+                        inline_keyboard: keyboard,
+                    },
+                });
+            } else {
+                await ctx.reply("Больше не осталось!")
+            }
+
         } else {
             ctx.reply("Новых заказов пока нет!", {
                 parse_mode: "HTML",
