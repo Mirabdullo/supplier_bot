@@ -8,22 +8,30 @@ export const Warehouse = sequelize.define("warehouse", {
         defaultValue: UUIDV4,
         allowNull: false,
     },
+    company_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+    },
+    admin: {
+        type: DataTypes.UUID,
+        allowNull: false,
+    },
     name: {
         type: DataTypes.STRING(128),
         allowNull: false,
     },
-    company_id: {
-        type: DataTypes.UUID,
-    },
-    admin: {
-        type: DataTypes.UUID,
-    },
     status: {
         type: DataTypes.STRING,
+        allowNull: false,
         defaultValue: "NEW",
     },
     type: {
         type: DataTypes.STRING,
+        allowNull: false,
         defaultValue: "склад",
     },
+}, {
+    paranoid: true,
+    timestamps: true,
+    freezeTableName: true,
 });
