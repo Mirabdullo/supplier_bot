@@ -37,7 +37,7 @@ export async function sendPageWithButton(ctx: Context, pageIndex: number, compId
                 }
 
             }
-            await ctx.reply("Keyingi produktlarni ko'rish", {
+            await ctx.reply("Посмотреть больше продуктов", {
                 parse_mode: "HTML",
                 reply_markup: {
                     inline_keyboard: keyboard,
@@ -79,7 +79,7 @@ async function getPageProducts(pageIndex: number, compId: string) {
 
 function constructInlineKeyboard(pageIndex: number, productsCount: number) {
     if (productsCount > PAGE_SIZE * (pageIndex + 1)) {
-        return [[{ text: "Keyingisi", callback_data: `next_page=${pageIndex}` }]];
+        return [[{ text: "Следующий", callback_data: `next_page=${pageIndex}` }]];
     } else {
         return [];
     }
