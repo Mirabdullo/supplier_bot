@@ -1,9 +1,9 @@
-
 import { DataTypes, UUIDV4 } from "sequelize";
 import { sequelize } from "../core/db";
 import { Models } from "./model.model";
+import { Deals } from "./deals";
 
- export const Orders = sequelize.define("orders", {
+export const Orders = sequelize.define("orders", {
     id: {
         type: DataTypes.UUID,
         primaryKey: true,
@@ -51,6 +51,9 @@ import { Models } from "./model.model";
         defaultValue: true,
         allowNull: false,
     },
+    deal_id: {
+        type: DataTypes.STRING,
+    },
     status: {
         type: DataTypes.STRING(1024),
         defaultValue: "NEW",
@@ -72,7 +75,6 @@ import { Models } from "./model.model";
     },
 });
 
+Orders.belongsTo(Models, { foreignKey: "model_id" });
 
-Orders.belongsTo(Models, {foreignKey: "model_id"})
-
-
+Orders.belongsTo(Deals, { foreignKey: "deal_id"})

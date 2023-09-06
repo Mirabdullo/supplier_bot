@@ -2,6 +2,7 @@ import { Composer, Context } from "telegraf";
 import { bot } from "../core";
 import { User } from "../models/user.model";
 import { sendPageWithButton } from "../libs/products.service";
+import { menu } from "../libs/keyboards";
 
 const composer = new Composer();
 
@@ -10,6 +11,7 @@ composer.on("message", async (ctx) => {
         let telegramId = ctx.from.id
         if ("text" in ctx.update.message) {
             console.log(ctx.update.message.text);
+            const checkUser = await User.findOne({where: {bot_id: ctx.from.id, use_bot: true}})
             const user = await User.findOne({ where: { phone: ctx.update.message.text } });
             if (user) {
                 console.log(user.dataValues);
@@ -26,6 +28,7 @@ composer.on("message", async (ctx) => {
                     
                     let use = user.dataValues.use_bot
                     if (use && telegramId === parseInt(bot_id)) {
+                        await menu(ctx)
                         await sendPageWithButton(ctx, 0, id)
                         } else {
                             await ctx.reply(
@@ -43,14 +46,16 @@ composer.on("message", async (ctx) => {
             }
 
             else {
-                console.log("user null");
-                await ctx.reply(
-                    `Неправильный номер.\nЕсли у вас возникли проблемы с регистрацией, обратитесь к <a href="https://t.me/Fatkhull01">администратору</a>.`,
-                    {
-                        parse_mode: "HTML",
-                        disable_web_page_preview: true,
-                    }
-                );
+                if (!checkUser) {
+                    console.log("user null");
+                    await ctx.reply(
+                        `Неправильный номер.\nЕсли у вас возникли проблемы с регистрацией, обратитесь к <a href="https://t.me/Fatkhull01">администратору</a>.`,
+                        {
+                            parse_mode: "HTML",
+                            disable_web_page_preview: true,
+                        }
+                    );
+                }
             }
         }
     } catch (error) {
