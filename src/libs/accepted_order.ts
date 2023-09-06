@@ -36,17 +36,12 @@ export async function sendAcceptedOrders(ctx: Context, pageIndex: number, compId
         }
         console.log(pageIndex);
         let key = [
-            { text: "⬅️" , callback_data: `old_page=${pageIndex}`},
+            { text: "⬅️" , callback_data: `old_page_accept=${pageIndex}`},
             { text: "❌" , callback_data: `delete_menu`},
-            { text: "➡️" , callback_data: `next_page=${pageIndex}`},
+            { text: "➡️" , callback_data: `next_page_accept=${pageIndex}`},
         ]
-        await ctx.reply(message, {
-            parse_mode: "HTML",
-            reply_markup: {
-                inline_keyboard: [[...keyboardArray], [...keyboardArray1],[...key]],
-                resize_keyboard: true
-            },
-        });
+        
+        return {message, key, keyboardArray, keyboardArray1}
 
     } else {
         ctx.reply("Новых заказов пока нет!", {

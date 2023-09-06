@@ -264,6 +264,67 @@ composer.action(/old_page_reject=(\d+)/, async (ctx) => {
 
 
 
+composer.action(/next_page_accept=(\d+)/, async (ctx) => {
+    let telegramId = ctx.update.callback_query.from.id;
+
+    const user = await User.findOne({ where: { bot_id: telegramId } });
+    let messageId = ctx.update.callback_query.message?.message_id;
+    let compId = user?.dataValues.comp_id;
+
+    if (user) {
+        const currentPage = parseInt(ctx.match[1] || "0");
+        const data = await sendRejectedOrders(ctx, currentPage + 1, compId);
+        let message = data?.message
+        let key3 = data?.key
+        let key1 = data?.keyboardArray
+        let key2 = data?.keyboardArray1
+        if (message && key1 && key2 && key3) { 
+            await ctx.editMessageText(message, {
+                parse_mode: "HTML",
+                reply_markup: {
+                    inline_keyboard: [
+                        [...key1], [...key2], [...key3]
+                    ]
+                }
+            })
+
+        }
+    }
+});
+
+
+composer.action(/old_page_accept=(\d+)/, async (ctx) => {
+    let telegramId = ctx.update.callback_query.from.id;
+
+    const user = await User.findOne({ where: { bot_id: telegramId } });
+    let messageId = ctx.update.callback_query.message?.message_id;
+    if (user) {
+        let compId = user.dataValues.comp_id;
+        const currentPage = parseInt(ctx.match[1] || "0");
+        if (currentPage > 0) {
+            const data = await sendRejectedOrders(ctx, currentPage - 1, compId);
+            let message = data?.message
+            let key3 = data?.key
+            let key1 = data?.keyboardArray
+            let key2 = data?.keyboardArray1
+            if (message && key1 && key2 && key3) { 
+                await ctx.editMessageText(message, {
+                    parse_mode: "HTML",
+                    reply_markup: {
+                        inline_keyboard: [
+                            [...key1], [...key2], [...key3]
+                        ]
+                    }
+                })
+    
+            }
+        } else {
+            await ctx.answerCbQuery("Вы на первой странице!");
+        }
+    }
+});
+
+
 composer.action("delete_menu", async (ctx) => {
     try {
         let messageId = ctx.update.callback_query.message?.message_id;
