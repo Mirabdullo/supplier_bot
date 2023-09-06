@@ -30,8 +30,8 @@ export async function sendOrderInfo(ctx: Context, orderId: string) {
         
         let options = { day: "numeric", month: "2-digit", year: "numeric" }
         let status = order?.dataValues?.status
-        let stat = status === "ACCEPTED"? "Принято" : status === "REJECTED" ? "Не принимаются" : status === "ACTIVE" ? "Активный" : status
-        let message = `<b>ОрдерИд</b>: ${order?.dataValues?.order_id}\n<b>Вид мебели</b>: ${order?.dataValues.model?.furniture_type?.name}\n<b>Модель</b>: ${order?.dataValues
+        let stat = status === "ACCEPTED"? "Принято" : status === "REJECTED" ? "Отменённый" : status === "ACTIVE" ? "Активный" : status
+        let message = `<b>Ид</b>: ${order?.dataValues?.order_id}\n<b>Вид мебели</b>: ${order?.dataValues.model?.furniture_type?.name}\n<b>Модель</b>: ${order?.dataValues
             ?.model?.name}\n<b>Ткань</b>: ${order?.dataValues?.tissue}\n<b>Кол-во</b>: ${order?.dataValues?.qty}\n<b>Статус</b>: ${stat}\n${
             order?.dataValues?.deal?.delivery_date ? "<b>Дата доставки</b>: " + order.dataValues?.deal?.delivery_date.toLocaleString('uz', options) + "\n" : ""
         }<b>Примечание</b>: ${order?.dataValues?.title}`;

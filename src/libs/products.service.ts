@@ -14,7 +14,7 @@ export async function sendPageWithButton(ctx: Context, pageIndex: number, compId
 
         if (pageProducts.length > 0) {
             const keyboard = constructInlineKeyboard(pageIndex, products.length);
-            console.log(keyboard);
+         
             for (let product of pageProducts) { 
                 try {
                     let id = product.dataValues?.id;

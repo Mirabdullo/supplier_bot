@@ -3,51 +3,51 @@ import { bot } from "../core";
 import { User } from "../models/user.model";
 import { sendPageWithButton } from "../libs/products.service";
 import { menu } from "../libs/keyboards";
+import { searchOrders } from "../libs/search_orders";
 
 const composer = new Composer();
 
 composer.on("message", async (ctx) => {
     try {
-        let telegramId = ctx.from.id
-        if ("text" in ctx.update.message) {
-            console.log(ctx.update.message.text);
-            const checkUser = await User.findOne({where: {bot_id: ctx.from.id, use_bot: true}})
-            const user = await User.findOne({ where: { phone: ctx.update.message.text } });
+        let telegramId = ctx.from.id;
+        let text = "";
+        if ("text" in ctx.message) {
+            text = ctx.message.text;
+        }
+        if (text) {
+            console.log(text);
+            const checkUser = await User.findOne({ where: { bot_id: ctx.from.id, use_bot: true } });
+            const user = await User.findOne({ where: { phone: text } });
             if (user) {
                 console.log(user.dataValues);
                 let id = user.dataValues.comp_id;
-                let role = user.dataValues.role
-                let bot_id = user.dataValues.bot_id
+                let role = user.dataValues.role;
+                let bot_id = user.dataValues.bot_id;
 
                 if (role !== "PRODUCER") {
                     await ctx.reply(`Извините, вы не можете использовать этого бота!`, {
-                        parse_mode: "HTML"
-                    })
-                }
-                else {
-                    
-                    let use = user.dataValues.use_bot
+                        parse_mode: "HTML",
+                    });
+                } else {
+                    let use = user.dataValues.use_bot;
                     if (use && telegramId === parseInt(bot_id)) {
-                        await menu(ctx)
-                        await sendPageWithButton(ctx, 0, id)
-                        } else {
-                            await ctx.reply(
-                                "Номер принят. Для использования бота обратитесь к администратору Woodline.\n\nПриносим извинения за неудобства!",
-                                {
-                                    parse_mode: "HTML",
-                                }
-                            );
-    
-                            if (!user.dataValues.bot_id) {
-                                await User.update({ bot_id: ctx.from.id }, { where: { id: user.dataValues.id } });
+                        await menu(ctx);
+                        await sendPageWithButton(ctx, 0, id);
+                    } else {
+                        await ctx.reply(
+                            "Номер принят. Для использования бота обратитесь к администратору Woodline.\n\nПриносим извинения за неудобства!",
+                            {
+                                parse_mode: "HTML",
                             }
-                        }
-                }
-            }
+                        );
 
-            else {
+                        if (!user.dataValues.bot_id) {
+                            await User.update({ bot_id: ctx.from.id }, { where: { id: user.dataValues.id } });
+                        }
+                    }
+                }
+            } else {
                 if (!checkUser) {
-                    console.log("user null");
                     await ctx.reply(
                         `Неправильный номер.\nЕсли у вас возникли проблемы с регистрацией, обратитесь к <a href="https://t.me/Fatkhull01">администратору</a>.`,
                         {
@@ -55,6 +55,21 @@ composer.on("message", async (ctx) => {
                             disable_web_page_preview: true,
                         }
                     );
+                } else {
+                    let compId = checkUser.dataValues.comp_id;
+                    const data = await searchOrders(ctx, 0, compId, text);
+                    let message = data?.message;
+                    let key3 = data?.key;
+                    let key1 = data?.keyboardArray;
+                    let key2 = data?.keyboardArray1;
+                    if (message && key1 && key2 && key3) {
+                        await ctx.reply(message, {
+                            parse_mode: "HTML",
+                            reply_markup: {
+                                inline_keyboard: [[...key1], [...key2], [...key3]],
+                            },
+                        });
+                    }
                 }
             }
         }
