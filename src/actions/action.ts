@@ -273,7 +273,7 @@ composer.action(/next_page_accept=(\d+)/, async (ctx) => {
 
     if (user) {
         const currentPage = parseInt(ctx.match[1] || "0");
-        const data = await sendRejectedOrders(ctx, currentPage + 1, compId);
+        const data = await sendAcceptedOrders(ctx, currentPage + 1, compId);
         let message = data?.message
         let key3 = data?.key
         let key1 = data?.keyboardArray
@@ -302,7 +302,7 @@ composer.action(/old_page_accept=(\d+)/, async (ctx) => {
         let compId = user.dataValues.comp_id;
         const currentPage = parseInt(ctx.match[1] || "0");
         if (currentPage > 0) {
-            const data = await sendRejectedOrders(ctx, currentPage - 1, compId);
+            const data = await sendAcceptedOrders(ctx, currentPage - 1, compId);
             let message = data?.message
             let key3 = data?.key
             let key1 = data?.keyboardArray
