@@ -7,18 +7,25 @@ import { Op } from "sequelize";
 const PAGE_SIZE = 10;
 
 export async function searchOrders(ctx: Context, pageIndex: number, compId: string, text: string) {
-    console.log(text,"kkk");
     const products = await getPageProducts(compId, text);
     if (!products.length) {
         await ctx.reply("Заказ по запросу не найдена", {
             parse_mode: "HTML",
         });
+        setTimeout(() => {
+            let id = ctx.message?.message_id
+            console.log(id);
+            if (id && id + 1) {
+                ctx.deleteMessage(id)
+                ctx.deleteMessage(id + 1)
+            }
+        }, 5000)
+        return;
     }
-    console.log(products.length);
     let pageProducts = products.slice(pageIndex * PAGE_SIZE, (pageIndex + 1) * PAGE_SIZE);
 
     if (pageProducts.length > 0) {
-        let message = `Результаты <b>принял</b>: ${PAGE_SIZE * pageIndex + 1}-${PAGE_SIZE * pageIndex + PAGE_SIZE} из ${products.length}\n\n`;
+        let message = `Результаты <b>поиск</b>: ${PAGE_SIZE * pageIndex + 1}-${PAGE_SIZE * pageIndex + PAGE_SIZE} из ${products.length}\n\n`;
         let i = 0;
         let keyboardArray = [];
         let keyboardArray1 = [];

@@ -427,7 +427,7 @@ composer.action(/(^info=[\s\S])[\w\W]+/g, async (ctx) => {
 
     const user = await User.findOne({ where: { bot_id: telegramId } });
     let id = ctx.match[0].split("=")[1];
-    console.log(ctx.match);
+
     if (user) {
         await sendOrderInfo(ctx, id);
     }
