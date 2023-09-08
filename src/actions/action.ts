@@ -76,6 +76,7 @@ composer.action(/(^reject=[\s\S])[\w\W]+/g, async (ctx) => {
         }
     }
     const id = ctx.match[0].split("=")[1];
+    console.log(id);
     const product = await Orders.findByPk(id);
     console.log("reject: ", product?.dataValues?.id);
     if (product?.dataValues.status === "ACCEPTED") {
