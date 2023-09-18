@@ -139,7 +139,7 @@ composer.action(/(^sold=[\s\S])[\w\W]+/g, async (ctx) => {
     const id = ctx.match[0].split("=")[1];
     const product = await Orders.findByPk(id);
 
-    if (product?.dataValues.status !== "SOLD") {
+    if (product?.dataValues.status !== "SOLD" || product?.dataValues.status !== "ACCEPTED") {
         ctx.answerCbQuery("This product is already Ready");
     }
 
