@@ -5,12 +5,11 @@
   "main": "main.ts",
   "scripts": {
     "prebuild": "rimraf ./dist",
-    "dev": "npx nodemon",
     "build": "npm run prebuild && npx tsc",
     "start": "npm run build && node dist/main",
     "lint": "npx eslint ./src",
     "format": "npx eslint ./src --fix",
-    "bos": "nodemon src/main.ts"
+    "dev": "nodemon src/main.ts"
   },
   "keywords": [],
   "author": "",
@@ -30,6 +29,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
+    "date-fns": "^2.30.0",
     "node-cron": "^3.0.2",
     "pg": "^8.11.3",
     "sequelize": "^6.32.1",

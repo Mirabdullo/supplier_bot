@@ -1,9 +1,10 @@
 import { Context, Telegraf } from "telegraf";
 import { sequelize } from "./db"
+import dotenv from "dotenv"
+dotenv.config()
 
-
-const token = "6491679680:AAFaZfYkSjdP3bY62VBzY57u8Uzt7exMTMY";   // server token
-// const token = "6243689515:AAHok9fMY6ef83GHkCCUJvMyhHFL_JUSt2I"   //local token
+// const token = process.env.TOKEN   // server token
+const token: string = process.env.TEST_TOKEN || ""  //local token
 
 export const bot = new Telegraf(token);
 

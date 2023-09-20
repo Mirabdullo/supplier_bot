@@ -13,13 +13,13 @@ export async function searchOrders(ctx: Context, pageIndex: number, compId: stri
             parse_mode: "HTML",
         });
         setTimeout(() => {
-            let id = ctx.message?.message_id
+            let id = ctx.message?.message_id;
             console.log(id);
             if (id && id + 1) {
-                ctx.deleteMessage(id)
-                ctx.deleteMessage(id + 1)
+                ctx.deleteMessage(id);
+                ctx.deleteMessage(id + 1);
             }
-        }, 5000)
+        }, 5000);
         return;
     }
     let pageProducts = products.slice(pageIndex * PAGE_SIZE, (pageIndex + 1) * PAGE_SIZE);
@@ -31,7 +31,7 @@ export async function searchOrders(ctx: Context, pageIndex: number, compId: stri
         let keyboardArray1 = [];
         for (let product of pageProducts) {
             try {
-                i++
+                i++;
                 let id = product.dataValues?.id;
                 let orderId = product.dataValues?.order_id;
                 let model = product.dataValues?.model?.name;
@@ -41,7 +41,6 @@ export async function searchOrders(ctx: Context, pageIndex: number, compId: stri
                 if (i >= 6) {
                     keyboardArray1.push({ text: `${i}`, callback_data: `info=${id}` });
                 } else {
-
                     keyboardArray.push({ text: `${i}`, callback_data: `info=${id}` });
                 }
             } catch (error) {
@@ -50,20 +49,18 @@ export async function searchOrders(ctx: Context, pageIndex: number, compId: stri
         }
         console.log(pageIndex);
         let key = [
-            { text: "⬅️" , callback_data: `old_page_search=${pageIndex}=${text}`},
-            { text: "❌" , callback_data: `delete_menu_search`},
-            { text: "➡️" , callback_data: `next_page_search=${pageIndex}=${text}`},
-        ]
-        
-        return {message, key, keyboardArray, keyboardArray1}
+            { text: "⬅️", callback_data: `old_page_search=${pageIndex}=${text}` },
+            { text: "Очистить", callback_data: `delete_menu_search` },
+            { text: "➡️", callback_data: `next_page_search=${pageIndex}=${text}` },
+        ];
 
+        return { message, key, keyboardArray, keyboardArray1 };
     } else {
-        await ctx.answerCbQuery("Больше не осталось!")
+        await ctx.answerCbQuery("Больше не осталось!");
     }
 }
 
 async function getPageProducts(compId: string, text: string) {
-    
     const products = await Orders.findAll({
         where: {
             [Op.or]: [{ order_id: { [Op.iLike]: `%${text}%` } }, { "$model.name$": { [Op.iLike]: `%${text}%` } }],
@@ -89,5 +86,3 @@ async function getPageProducts(compId: string, text: string) {
 
     return products;
 }
-
-

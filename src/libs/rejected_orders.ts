@@ -17,7 +17,7 @@ export async function sendRejectedOrders(ctx: Context, pageIndex: number, compId
         let keyboardArray1 = [];
         for (let product of pageProducts) {
             try {
-                i++
+                i++;
                 let id = product.dataValues?.id;
                 let orderId = product.dataValues?.order_id;
                 let model = product.dataValues?.model?.name;
@@ -27,7 +27,6 @@ export async function sendRejectedOrders(ctx: Context, pageIndex: number, compId
                 if (i >= 6) {
                     keyboardArray1.push({ text: `${i}`, callback_data: `info=${id}` });
                 } else {
-
                     keyboardArray.push({ text: `${i}`, callback_data: `info=${id}` });
                 }
             } catch (error) {
@@ -36,13 +35,12 @@ export async function sendRejectedOrders(ctx: Context, pageIndex: number, compId
         }
         console.log(pageIndex);
         let key = [
-            { text: "⬅️" , callback_data: `old_page_reject=${pageIndex}`},
-            { text: "❌" , callback_data: `delete_menu`},
-            { text: "➡️" , callback_data: `next_page_reject=${pageIndex}`},
-        ]
+            { text: "⬅️", callback_data: `old_page_reject=${pageIndex}` },
+            { text: "Очистить", callback_data: `delete_menu` },
+            { text: "➡️", callback_data: `next_page_reject=${pageIndex}` },
+        ];
 
-        return {message, key, keyboardArray, keyboardArray1}
-
+        return { message, key, keyboardArray, keyboardArray1 };
     } else {
         ctx.reply("Новых заказов пока нет!", {
             parse_mode: "HTML",
@@ -75,5 +73,3 @@ async function getPageProducts(compId: string) {
 
     return products;
 }
-
-

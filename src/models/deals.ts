@@ -1,6 +1,7 @@
-import { DataTypes, UUIDV4 } from "sequelize";
+import { BelongsTo, DataTypes, UUIDV4 } from "sequelize";
 import { sequelize } from "../core/db";
 import { Orders } from "./order.model";
+import { Client } from "./client.model";
 
 export const Deals = sequelize.define("deals", {
     id: {
@@ -30,6 +31,14 @@ export const Deals = sequelize.define("deals", {
         allowNull: false,
         defaultValue: true
     },
+    seller_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+    },
+    client_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+    },
     status: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -42,3 +51,5 @@ export const Deals = sequelize.define("deals", {
 
 })
 
+
+Deals.belongsTo(Client, {foreignKey: "client_id"})

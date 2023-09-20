@@ -3,6 +3,8 @@ import { Orders } from "../models/order.model";
 import { Models } from "../models/model.model";
 import { FurnitureType } from "../models/furniture_type.model";
 import { Deals } from "../models/deals";
+import { Client } from "../models/client.model";
+import { format } from "date-fns";
 
 const PAGE_SIZE = 15;
 
@@ -15,26 +17,28 @@ export async function sendPageWithButton(ctx: Context, pageIndex: number, compId
 
         for (let product of pageProducts) {
             try {
-                let id = product.dataValues?.id;
-                let orderId = product.dataValues?.order_id;
-                let model = product.dataValues?.model?.name;
-                let type = product.dataValues?.model?.furniture_type?.name;
-                let date = product.dataValues?.deal.delivery_date;
+                let payload = {
+                    id: product.dataValues.id,
+                    orderId: product.dataValues.order_id,
+                    type: product.dataValues.model.furniture_type.name,
+                    model: product.dataValues.model.name,
+                    tissue: product.dataValues.tissue,
+                    qty: product.dataValues.qty,
+                    clientName: product.dataValues.deal.client.name,
+                    clientPhone: product.dataValues.deal.client.phone,
+                    delivery_date: format(product.dataValues.deal.dataValues.delivery_date, "d.MM.yyyy"),
+                    title: product.dataValues.title,
+                };
+                let message = `<b>Новый заказ</b>\n\n<b>Ид</b>: ${payload.orderId}\n<b>Вид мебели</b>: ${payload.type}\n<b>Модель</b>: ${payload.model}\n<b>Ткань</b>: ${payload.tissue}\n<b>Кол-во</b>: ${payload.qty}\n<b>Клиент</b>: ${payload.clientName}\n<b>Тел</b>: ${payload.clientPhone}\n<b>Дата доставки</b>: ${payload.delivery_date}\n<b>Примечание</b>: ${payload.title}`;
 
-                let options = { day: "numeric", month: "2-digit", year: "numeric" };
 
-                let message = `<b>Новый заказ</b>\n\n<b>Ид</b>: ${
-                    product.dataValues.order_id
-                }\n<b>Вид мебели</b>: ${type}\n<b>Модель</b>: ${model}\n<b>Ткань</b>: ${product.dataValues.tissue}\n<b>Кол-во</b>: ${
-                    product.dataValues.qty
-                }\n${date ? "<b>Дата доставки</b>: " + date.toLocaleString("uz", options) + "\n" : ""}<b>Примечание</b>: ${product.dataValues.title}`;
                 await ctx.reply(message, {
                     parse_mode: "HTML",
                     reply_markup: {
                         inline_keyboard: [
                             [
-                                { text: "Отмена", callback_data: `reject=${id}` },
-                                { text: "Принял", callback_data: `accept=${id}` },
+                                { text: "Отмена", callback_data: `reject=${payload.id}` },
+                                { text: "Принял", callback_data: `accept=${payload.id}` },
                             ],
                         ],
                     },
@@ -73,6 +77,12 @@ async function getPageProducts(pageIndex: number, compId: string) {
             {
                 model: Deals,
                 attributes: ["delivery_date"],
+                include: [
+                    {
+                        model: Client,
+                        attributes: ["name", "phone"],
+                    },
+                ],
             },
             {
                 model: Models,

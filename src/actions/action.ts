@@ -13,55 +13,59 @@ import { searchOrders } from "../libs/search_orders";
 const composer = new Composer();
 
 composer.action(/(^accept=[\s\S])[\w\W]+/g, async (ctx) => {
-    let telegramId = ctx.update.callback_query.from.id;
-    let text: any;
-    let messageId = ctx.update.callback_query.message?.message_id;
-    if (ctx.update.callback_query && ctx.update.callback_query.message) {
-        const message = ctx.update.callback_query.message;
-        if ("text" in message) {
-            text = message.text;
+    try {
+        let telegramId = ctx.update.callback_query.from.id;
+        let text: any;
+        let messageId = ctx.update.callback_query.message?.message_id;
+        if (ctx.update.callback_query && ctx.update.callback_query.message) {
+            const message = ctx.update.callback_query.message;
+            if ("text" in message) {
+                text = message.text;
+            }
         }
-    }
-    const id = ctx.match[0].split("=")[1];
+        const id = ctx.match[0].split("=")[1];
 
-    const product = await Orders.findByPk(id);
+        const product = await Orders.findByPk(id);
 
-    if (product?.dataValues.status === "ACCEPTED") {
-        await ctx.answerCbQuery("Заказ принят через сайт!");
+        if (product?.dataValues.status === "ACCEPTED") {
+            await ctx.answerCbQuery("Заказ принят через сайт!");
+            await ctx.editMessageText(text + "\n\n<b>✅Принял</b>", {
+                parse_mode: "HTML",
+            });
+        }
+
+        if (product?.dataValues.status === "REJECTED") {
+            await ctx.answerCbQuery("Заказ отменен через сайт!");
+            await ctx.editMessageText(text + "\n\n<b>🚫Отменено</b>", {
+                parse_mode: "HTML",
+            });
+        }
+
+        let ifexists;
+        if (product?.dataValues.id && telegramId) {
+            ifexists = await createWarehouseProduct(ctx, product?.dataValues?.id, telegramId);
+        }
+
+        if (!ifexists) {
+            return;
+        }
+
+        console.log("accept: ", product?.dataValues?.id);
+        if (product && "status" in product) {
+            product.status = "ACCEPTED";
+            await product.save();
+        }
+
         await ctx.editMessageText(text + "\n\n<b>✅Принял</b>", {
             parse_mode: "HTML",
-        });
+        })
+
+        setTimeout(() => {
+            ctx.deleteMessage(messageId);
+        }, 5000);
+    } catch (error) {
+        console.log(error);
     }
-
-    if (product?.dataValues.status === "REJECTED") {
-        await ctx.answerCbQuery("Заказ отменен через сайт!");
-        await ctx.editMessageText(text + "\n\n<b>🚫Отменено</b>", {
-            parse_mode: "HTML",
-        });
-    }
-
-    let ifexists;
-    if (product?.dataValues.id && telegramId) {
-        ifexists = await createWarehouseProduct(ctx, product?.dataValues?.id, telegramId);
-    }
-
-    if (!ifexists) {
-        return;
-    }
-
-    console.log("accept: ", product?.dataValues?.id);
-    if (product && "status" in product) {
-        product.status = "ACCEPTED";
-        await product.save();
-    }
-
-    await ctx.editMessageText(text + "\n\n<b>✅Принял</b>", {
-        parse_mode: "HTML",
-    });
-
-    setTimeout(() => {
-        ctx.deleteMessage(messageId);
-    }, 5000);
 });
 
 composer.action(/(^reject=[\s\S])[\w\W]+/g, async (ctx) => {
@@ -139,8 +143,11 @@ composer.action(/(^sold=[\s\S])[\w\W]+/g, async (ctx) => {
     const id = ctx.match[0].split("=")[1];
     const product = await Orders.findByPk(id);
 
-    if (product?.dataValues.status !== "SOLD" || product?.dataValues.status !== "ACCEPTED") {
-        ctx.answerCbQuery("This product is already Ready");
+    if (product?.dataValues.status === "SOLD_AND_CHECKED") {
+        ctx.answerCbQuery("Этот продукт уже готов");
+        await ctx.editMessageText(text + "\n\n<b>✅Готовый</b>", {
+            parse_mode: "HTML",
+        });
     }
 
     if (product && "status" in product) {
