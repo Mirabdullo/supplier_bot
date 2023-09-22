@@ -9,96 +9,113 @@ import { format } from "date-fns";
 const PAGE_SIZE = 15;
 
 export async function sendPageWithButton(ctx: Context, pageIndex: number, compId: string) {
-    const products = await getPageProducts(pageIndex, compId);
-    let pageProducts = products.slice(pageIndex * PAGE_SIZE, (pageIndex + 1) * PAGE_SIZE);
+    try {
+        const products = await getPageProducts(pageIndex, compId);
+    if (products) {
+        let pageProducts = products.slice(pageIndex * PAGE_SIZE, (pageIndex + 1) * PAGE_SIZE);
 
-    if (pageProducts.length > 0) {
-        const keyboard = constructInlineKeyboard(pageIndex, products.length);
+        if (pageProducts.length > 0) {
+            const keyboard = constructInlineKeyboard(pageIndex, products.length);
 
-        for (let product of pageProducts) {
-            try {
-                let payload = {
-                    id: product.dataValues.id,
-                    orderId: product.dataValues.order_id,
-                    type: product.dataValues.model.furniture_type.name,
-                    model: product.dataValues.model.name,
-                    tissue: product.dataValues.tissue,
-                    qty: product.dataValues.qty,
-                    clientName: product.dataValues.deal.client.name,
-                    clientPhone: product.dataValues.deal.client.phone,
-                    delivery_date: format(product.dataValues.deal.dataValues.delivery_date, "d.MM.yyyy"),
-                    title: product.dataValues.title,
-                };
-                let message = `<b>Новый заказ</b>\n\n<b>Ид</b>: ${payload.orderId}\n<b>Вид мебели</b>: ${payload.type}\n<b>Модель</b>: ${payload.model}\n<b>Ткань</b>: ${payload.tissue}\n<b>Кол-во</b>: ${payload.qty}\n<b>Клиент</b>: ${payload.clientName}\n<b>Тел</b>: ${payload.clientPhone}\n<b>Дата доставки</b>: ${payload.delivery_date}\n<b>Примечание</b>: ${payload.title}`;
+            for (let product of pageProducts) {
+                try {
+                    let payload = {
+                        id: product.dataValues.id,
+                        orderId: product.dataValues.order_id,
+                        type: product.dataValues.model.furniture_type.name,
+                        model: product.dataValues.model.name,
+                        tissue: product.dataValues.tissue,
+                        qty: product.dataValues.qty,
+                        clientName: product.dataValues.deal.client.name,
+                        clientPhone: product.dataValues.deal.client.phone,
+                        delivery_date: format(product.dataValues.deal.dataValues.delivery_date, "d.MM.yyyy"),
+                        title: product.dataValues.title,
+                    };
+                    let message = `<b>Новый заказ</b>\n\n<b>Ид</b>: ${payload.orderId}\n<b>Вид мебели</b>: ${payload.type}\n<b>Модель</b>: ${payload.model}\n<b>Ткань</b>: ${payload.tissue}\n<b>Кол-во</b>: ${payload.qty}\n<b>Клиент</b>: ${payload.clientName}\n<b>Тел</b>: ${payload.clientPhone}\n<b>Дата доставки</b>: ${payload.delivery_date}\n<b>Примечание</b>: ${payload.title}`;
 
+                    await ctx.reply(message, {
+                        parse_mode: "HTML",
+                        reply_markup: {
+                            inline_keyboard: [
+                                [
+                                    { text: "Отмена", callback_data: `reject=${payload.id}` },
+                                    { text: "Принял", callback_data: `accept=${payload.id}` },
+                                ],
+                            ],
+                        },
+                    });
+                } catch (error) {
+                    console.log(error);
+                }
+            }
 
-                await ctx.reply(message, {
+            if (products.length - PAGE_SIZE * pageIndex > PAGE_SIZE) {
+                await ctx.reply("Посмотреть больше продуктов", {
                     parse_mode: "HTML",
                     reply_markup: {
-                        inline_keyboard: [
-                            [
-                                { text: "Отмена", callback_data: `reject=${payload.id}` },
-                                { text: "Принял", callback_data: `accept=${payload.id}` },
-                            ],
-                        ],
+                        inline_keyboard: keyboard,
                     },
                 });
-            } catch (error) {
-                console.log(error);
+            } else {
+                await ctx.reply("Больше не осталось!", {
+                    parse_mode: "HTML",
+                    reply_markup: {
+                        inline_keyboard: [[{ text: "Очистить", callback_data: "delete" }]],
+                    },
+                });
             }
-        }
-
-        if (products.length - PAGE_SIZE * pageIndex > PAGE_SIZE) {
-            await ctx.reply("Посмотреть больше продуктов", {
+        } else {
+            ctx.reply("Новых заказов пока нет!", {
                 parse_mode: "HTML",
                 reply_markup: {
-                    inline_keyboard: keyboard,
+                    inline_keyboard: [[{ text: "Очистить", callback_data: "delete" }]],
                 },
             });
-        } else {
-            await ctx.reply("Больше не осталось!");
         }
-    } else {
-        ctx.reply("Новых заказов пока нет!", {
-            parse_mode: "HTML",
-        });
+    } 
+    } catch (error) {
+        console.log(error);
     }
 }
 
 async function getPageProducts(pageIndex: number, compId: string) {
-    const products = await Orders.findAll({
-        where: {
-            status: "NEW",
-            "$model.company_id$": compId,
-            is_active: true,
-        },
-        attributes: ["id", "order_id", "status", "tissue", "title", "qty"],
-        include: [
-            {
-                model: Deals,
-                attributes: ["delivery_date"],
-                include: [
-                    {
-                        model: Client,
-                        attributes: ["name", "phone"],
-                    },
-                ],
+    try {
+        const products = await Orders.findAll({
+            where: {
+                status: "NEW",
+                "$model.company_id$": compId,
+                is_active: true,
             },
-            {
-                model: Models,
-                attributes: ["name", "code", "company_id"],
-                include: [
-                    {
-                        model: FurnitureType,
-                        attributes: ["name"],
-                    },
-                ],
-            },
-        ],
-        order: [["createdAt", "ASC"]],
-    });
+            attributes: ["id", "order_id", "status", "tissue", "title", "qty"],
+            include: [
+                {
+                    model: Deals,
+                    attributes: ["delivery_date"],
+                    include: [
+                        {
+                            model: Client,
+                            attributes: ["name", "phone"],
+                        },
+                    ],
+                },
+                {
+                    model: Models,
+                    attributes: ["name", "code", "company_id"],
+                    include: [
+                        {
+                            model: FurnitureType,
+                            attributes: ["name"],
+                        },
+                    ],
+                },
+            ],
+            order: [["createdAt", "ASC"]],
+        });
 
-    return products;
+        return products;
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 function constructInlineKeyboard(pageIndex: number, productsCount: number) {

@@ -14,6 +14,7 @@ composer.on("message", async (ctx) => {
         if ("text" in ctx.message) {
             text = ctx.message.text;
         }
+        console.log(text);
         if (text) {
             console.log(text);
             const checkUser = await User.findOne({ where: { bot_id: ctx.from.id, use_bot: true } });

@@ -8,7 +8,6 @@ import { Client } from "../models/client.model";
 
 export async function sendOrderInfo(ctx: Context, orderId: string) {
     try {
-        console.log(orderId);
         const order = await Orders.findOne({
             where: { id: orderId },
             attributes: ["id", "order_id", "status", "tissue", "title", "qty"],
@@ -35,6 +34,7 @@ export async function sendOrderInfo(ctx: Context, orderId: string) {
                 },
             ]
         });
+
 
         if (order) {
             let payload = {
