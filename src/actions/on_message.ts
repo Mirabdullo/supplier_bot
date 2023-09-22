@@ -10,17 +10,12 @@ const composer = new Composer();
 composer.on("message", async (ctx) => {
     try {
         let telegramId = ctx.from.id;
-        let text = "";
-        if ("text" in ctx.message) {
-            text = ctx.message.text;
-        }
-        console.log(text);
+        let text = "text" in ctx.message ?  ctx.message.text : ""
+
         if (text) {
-            console.log(text);
             const checkUser = await User.findOne({ where: { bot_id: ctx.from.id, use_bot: true } });
             const user = await User.findOne({ where: { phone: text } });
             if (user) {
-                console.log(user.dataValues);
                 let id = user.dataValues.comp_id;
                 let role = user.dataValues.role;
                 let bot_id = user.dataValues.bot_id;
@@ -36,7 +31,7 @@ composer.on("message", async (ctx) => {
                         await sendPageWithButton(ctx, 0, id);
                     } else {
                         await ctx.reply(
-                            "Номер принят. Для использования бота обратитесь к администратору Woodline.\n\nПриносим извинения за неудобства!",
+                            `Номер принят. Для использования бота обратитесь к <a href="https://t.me/Fatkhull01">администратору</a> Woodline.\n\n<b>Мы рады работать с вами!🫡</b>`,
                             {
                                 parse_mode: "HTML",
                             }

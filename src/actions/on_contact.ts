@@ -39,7 +39,7 @@ composer.on("contact", async (ctx) => {
                 });
             } else {
                 await ctx.reply(
-                    `Номер принят. Для использования бота обратитесь к <a href="https://t.me/Fatkhull01">администратору</a> Woodline.\n\nМы рады работать с вами!`,
+                    `Номер принят. Для использования бота обратитесь к <a href="https://t.me/Fatkhull01">администратору</a> Woodline.\n\n<b>Мы рады работать с вами!🫡</b>`,
                     {
                         parse_mode: "HTML",
                     }
@@ -51,8 +51,6 @@ composer.on("contact", async (ctx) => {
             }
         }
 
-        // let id = user.dataValues.comp_id;
-        // await newProducts(ctx, id);
     }
 });
 
