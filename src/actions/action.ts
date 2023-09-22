@@ -527,7 +527,7 @@ composer.action("delete_menu", async (ctx) => {
         const accessUser = await User.findOne({ where: { bot_id: ctx.from?.id, use_bot: true } });
         if (accessUser) {
             let messageId = ctx.update.callback_query.message?.message_id;
-            console.log(messageId);
+
             if (messageId) {
                 ctx.deleteMessage(messageId);
             }
@@ -544,7 +544,7 @@ composer.action("delete_menu_search", async (ctx) => {
         const accessUser = await User.findOne({ where: { bot_id: ctx.from?.id, use_bot: true } });
         if (accessUser) {
             let messageId = ctx.update.callback_query.message?.message_id;
-            console.log(messageId);
+
             if (messageId) {
                 ctx.deleteMessage(messageId - 1);
                 ctx.deleteMessage(messageId);
@@ -564,7 +564,8 @@ composer.action(/(^info=[\s\S])[\w\W]+/g, async (ctx) => {
             let id = ctx.match[0].split("=")[1];
             await sendOrderInfo(ctx, id);
         } else {
-            await ctx.answerCbQuery("Вы не можете использовать этого бота!", {show_alert: true} );
+            const mes = await ctx.answerCbQuery("Вы не можете использовать этого бота!", { show_alert: true });
+            console.log(mes);
         }
     } catch (error) {
         console.log(error);

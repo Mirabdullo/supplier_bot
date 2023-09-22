@@ -1,4 +1,4 @@
-import { Composer } from "telegraf";
+import { Composer, Context } from "telegraf";
 import { bot } from "../core";
 import { sendAcceptedOrders } from "../libs/accepted_order";
 import { User } from "../models/user.model";
@@ -9,6 +9,7 @@ const composer = new Composer();
 
 composer.hears("Принятые заказы", async (ctx) => {
     try {
+        const msgId = ctx.message.message_id
         const accessUser = await User.findOne({ where: { bot_id: ctx.from?.id, use_bot: true } });
         if (accessUser) {
             const id = ctx.message.message_id;
@@ -30,7 +31,11 @@ composer.hears("Принятые заказы", async (ctx) => {
                     ctx.deleteMessage(id);
                 }, 3000);
         } else {
-            await ctx.answerCbQuery("Вы не можете использовать этого бота!", {show_alert: true} );
+            const message = await ctx.reply("Вы не можете использовать этого бота!");
+            setTimeout(() => {
+                ctx.deleteMessage(msgId);
+                ctx.deleteMessage(message.message_id);
+            }, 5000)
         }
     } catch (error) {
         console.log(error);
@@ -39,6 +44,7 @@ composer.hears("Принятые заказы", async (ctx) => {
 
 composer.hears("Непринятые заказы", async (ctx) => {
     try {
+        const msgId = ctx.message.message_id
         const accessUser = await User.findOne({ where: { bot_id: ctx.from?.id, use_bot: true } });
         if (accessUser) {
             const id = ctx.message.message_id;
@@ -60,7 +66,11 @@ composer.hears("Непринятые заказы", async (ctx) => {
                     ctx.deleteMessage(id);
                 }, 3000);
         } else {
-            await ctx.answerCbQuery("Вы не можете использовать этого бота!", {show_alert: true} );
+            const msg = await ctx.reply("Вы не можете использовать этого бота!");
+            setTimeout(() => {
+                ctx.deleteMessage(msgId);
+                ctx.deleteMessage(msg.message_id);
+            }, 5000)
         }
     } catch (error) {
         console.log(error);
@@ -69,6 +79,7 @@ composer.hears("Непринятые заказы", async (ctx) => {
 
 composer.hears("Товары на складе", async (ctx) => {
     try {
+        const msgId = ctx.message.message_id
         const accessUser = await User.findOne({ where: { bot_id: ctx.from?.id, use_bot: true } });
         if (accessUser) {
             const id = ctx.message.message_id;
@@ -90,7 +101,11 @@ composer.hears("Товары на складе", async (ctx) => {
                     ctx.deleteMessage(id);
                 }, 3000);
         } else {
-            await ctx.answerCbQuery("Вы не можете использовать этого бота!", {show_alert: true} );
+            const message = await ctx.reply("Вы не можете использовать этого бота!");
+            setTimeout(() => {
+                ctx.deleteMessage(msgId);
+                ctx.deleteMessage(message.message_id);
+            }, 5000)
         }
     } catch (error) {
         console.log("Error active orders: ",error);

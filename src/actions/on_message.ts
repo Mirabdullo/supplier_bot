@@ -10,36 +10,32 @@ const composer = new Composer();
 composer.on("message", async (ctx) => {
     try {
         let telegramId = ctx.from.id;
-        let text = "text" in ctx.message ?  ctx.message.text : ""
+        let text = "text" in ctx.message ? ctx.message.text : "";
 
         if (text) {
             const checkUser = await User.findOne({ where: { bot_id: ctx.from.id, use_bot: true } });
             const user = await User.findOne({ where: { phone: text } });
-            if (user) {
+            if (user && ["PRODUCER"].includes(user.dataValues?.role)) {
                 let id = user.dataValues.comp_id;
-                let role = user.dataValues.role;
                 let bot_id = user.dataValues.bot_id;
 
-                if (role !== "PRODUCER") {
-                    await ctx.reply(`Извините, вы не можете использовать этого бота!`, {
+                if (user.dataValues.use_bot && telegramId === parseInt(bot_id)) {
+                    await menu(ctx);
+                    await sendPageWithButton(ctx, 0, id);
+                } else if (user.dataValues.use_bot && telegramId != bot_id) {
+                    await ctx.reply("Аккаунт Telegram недействителен для использования бота!", {
                         parse_mode: "HTML",
                     });
                 } else {
-                    let use = user.dataValues.use_bot;
-                    if (use && telegramId === parseInt(bot_id)) {
-                        await menu(ctx);
-                        await sendPageWithButton(ctx, 0, id);
-                    } else {
-                        await ctx.reply(
-                            `Номер принят. Для использования бота обратитесь к <a href="https://t.me/Fatkhull01">администратору</a> Woodline.\n\n<b>Мы рады работать с вами!🫡</b>`,
-                            {
-                                parse_mode: "HTML",
-                            }
-                        );
-
-                        if (!user.dataValues.bot_id) {
-                            await User.update({ bot_id: ctx.from.id }, { where: { id: user.dataValues.id } });
+                    await ctx.reply(
+                        `Номер принят. Для использования бота обратитесь к <a href="https://t.me/Fatkhull01">администратору</a> Woodline.\n\n<b>Мы рады работать с вами!🫡</b>`,
+                        {
+                            parse_mode: "HTML",
                         }
+                    );
+
+                    if (!user.dataValues.bot_id) {
+                        await User.update({ bot_id: ctx.from.id }, { where: { id: user.dataValues.id } });
                     }
                 }
             } else {

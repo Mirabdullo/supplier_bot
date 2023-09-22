@@ -8,17 +8,15 @@ const PAGE_SIZE = 10;
 
 export async function searchOrders(ctx: Context, pageIndex: number, compId: string, text: string) {
     try {
+        const msgId = ctx.message?.message_id
         const products = await getPageProducts(compId, text);
         if (!products || !products.length) {
-            await ctx.reply("Заказ по запросу не найдена", {
+            const ms = await ctx.reply("Заказ по запросу не найдена", {
                 parse_mode: "HTML",
             });
             setTimeout(() => {
-                let id = ctx.message?.message_id;
-                if (id && id + 1) {
-                    ctx.deleteMessage(id);
-                    ctx.deleteMessage(id + 1);
-                }
+                    ctx.deleteMessage(msgId);
+                    ctx.deleteMessage(ms.message_id);
             }, 5000);
             return;
         }

@@ -54,7 +54,7 @@ export async function sendOrderInfo(ctx: Context, orderId: string) {
             let stat = status === "ACCEPTED" ? "Принято" : status === "REJECTED" ? "Отменённый" : status === "ACTIVE" ? "Активный" : status
 
             let client = status === "ACCEPTED" ? `<b>Клиент</b>: ${payload.clientName}\n<b>Тел</b>: ${payload.clientPhone}\n`: ""
-            let date = payload.delivery_date ? `<b>Дата доставки</b>: ${payload.delivery_date}\n`  : ""
+            let date = status === "ACCEPTED" && payload.delivery_date ? `<b>Дата доставки</b>: ${payload.delivery_date}\n`  : ""
             let message = `<b>Ид</b>: ${payload.orderId}\n<b>Вид мебели</b>: ${payload.type}\n<b>Модель</b>: ${payload.model}\n<b>Ткань</b>: ${payload.tissue}\n<b>Кол-во</b>: ${payload.qty}\n<b>Статус</b>: ${stat}\n${client}${date}<b>Примечание</b>: ${payload.title}`;
     
             await ctx.reply(message, {
