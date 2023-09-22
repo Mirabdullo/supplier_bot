@@ -3,8 +3,8 @@ import { sequelize } from "./db"
 import dotenv from "dotenv"
 dotenv.config()
 
-// const token: string = process.env.TOKEN || ""   // server token
-const token: string = process.env.TEST_TOKEN || ""  //local token
+const token: string = process.env.TOKEN || ""   // server token
+// const token: string = process.env.TEST_TOKEN || ""  //local token
 
 export const bot = new Telegraf(token);
 
