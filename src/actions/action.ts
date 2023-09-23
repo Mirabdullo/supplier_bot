@@ -131,21 +131,9 @@ composer.action("start", async (ctx) => {
     try {
         const accessUser = await User.findOne({ where: { bot_id: ctx.from?.id, use_bot: true } });
         if (accessUser) {
-            let id = ctx.from?.id;
-            const user = await User.findOne({ where: { bot_id: id } });
-            console.log(ctx.update.callback_query.message);
-            let messageId = ctx.update.callback_query.message?.message_id;
-    
-            if (messageId) {
-                ctx.deleteMessage(messageId);
-            }
-    
-            if (user) {
-                let compId = user.dataValues.comp_id;
                 const currentPage = parseInt(ctx.match[1] || "0");
     
-                await sendPageWithButton(ctx, currentPage + 1, compId);
-            }
+                await sendPageWithButton(ctx, currentPage + 1, accessUser.dataValues.comp_id);
         } else {
             await ctx.answerCbQuery("Вы не можете использовать этого бота!", {show_alert: true} );
         }
@@ -202,16 +190,15 @@ composer.action(/next_page=(\d+)/, async (ctx) => {
     try {
         const accessUser = await User.findOne({ where: { bot_id: ctx.from?.id, use_bot: true } });
         if (accessUser) {
-            let telegramId = ctx.update.callback_query.from.id;
-    
-            const user = await User.findOne({ where: { bot_id: telegramId } });
+            console.log(accessUser.dataValues);
+
             let messageId = ctx.update.callback_query.message?.message_id;
-            if (user) {
-                let compId = user.dataValues.comp_id;
+
+                let compId = accessUser.dataValues.comp_id;
                 const currentPage = parseInt(ctx.match[1] || "0");
-                ctx.deleteMessage(messageId);
-                await sendAcceptedOrders(ctx, currentPage + 1, compId);
-            }
+            await ctx.deleteMessage(messageId);
+            await sendPageWithButton(ctx, currentPage + 1, compId)
+            
         } else {
             await ctx.answerCbQuery("Вы не можете использовать этого бота!", {show_alert: true} );
         }
@@ -220,44 +207,14 @@ composer.action(/next_page=(\d+)/, async (ctx) => {
     }
 });
 
-composer.action(/old_page=(\d+)/, async (ctx) => {
-    try {
-        const accessUser = await User.findOne({ where: { bot_id: ctx.from?.id, use_bot: true } });
-        if (accessUser) {
-            let telegramId = ctx.update.callback_query.from.id;
-    
-            const user = await User.findOne({ where: { bot_id: telegramId } });
-            let messageId = ctx.update.callback_query.message?.message_id;
-            if (user) {
-                let compId = user.dataValues.comp_id;
-                const currentPage = parseInt(ctx.match[1] || "0");
-                if (currentPage > 0) {
-                    ctx.deleteMessage(messageId);
-                    await sendAcceptedOrders(ctx, currentPage - 1, compId);
-                } else {
-                    await ctx.answerCbQuery("Вы на первой странице!");
-                }
-            }
-        } else {
-            await ctx.answerCbQuery("Вы не можете использовать этого бота!", {show_alert: true} );
-        }
-    } catch (error) {
-        console.log(error);
-    }
-});
 
 composer.action(/next_page_active=(\d+)/, async (ctx) => {
     try {
         const accessUser = await User.findOne({ where: { bot_id: ctx.from?.id, use_bot: true } });
         if (accessUser) {
-            let telegramId = ctx.update.callback_query.from.id;
-    
-            const user = await User.findOne({ where: { bot_id: telegramId } });
-            let compId = user?.dataValues.comp_id;
-    
-            if (user) {
+
                 const currentPage = parseInt(ctx.match[1] || "0");
-                const data = await sendActiveOrders(ctx, currentPage + 1, compId);
+                const data = await sendActiveOrders(ctx, currentPage + 1, accessUser.dataValues.comp_id);
                 let message = data?.message;
                 let key3 = data?.key;
                 let key1 = data?.keyboardArray;
@@ -270,7 +227,7 @@ composer.action(/next_page_active=(\d+)/, async (ctx) => {
                         },
                     });
                 }
-            }
+            
         } else {
             await ctx.answerCbQuery("Вы не можете использовать этого бота!", {show_alert: true} );
         }
@@ -283,14 +240,9 @@ composer.action(/old_page_active=(\d+)/, async (ctx) => {
     try {
         const accessUser = await User.findOne({ where: { bot_id: ctx.from?.id, use_bot: true } });
         if (accessUser) {
-            let telegramId = ctx.update.callback_query.from.id;
-    
-            const user = await User.findOne({ where: { bot_id: telegramId } });
-            if (user) {
-                let compId = user.dataValues.comp_id;
                 const currentPage = parseInt(ctx.match[1] || "0");
                 if (currentPage > 0) {
-                    const data = await sendActiveOrders(ctx, currentPage - 1, compId);
+                    const data = await sendActiveOrders(ctx, currentPage - 1, accessUser.dataValues.comp_id);
                     let message = data?.message;
                     let key3 = data?.key;
                     let key1 = data?.keyboardArray;
@@ -306,7 +258,7 @@ composer.action(/old_page_active=(\d+)/, async (ctx) => {
                 } else {
                     await ctx.answerCbQuery("Вы на первой странице!");
                 }
-            }
+            
         } else {
             await ctx.answerCbQuery("Вы не можете использовать этого бота!", {show_alert: true} );
         }
@@ -319,14 +271,8 @@ composer.action(/next_page_reject=(\d+)/, async (ctx) => {
     try {
         const accessUser = await User.findOne({ where: { bot_id: ctx.from?.id, use_bot: true } });
         if (accessUser) {
-            let telegramId = ctx.update.callback_query.from.id;
-    
-            const user = await User.findOne({ where: { bot_id: telegramId } });
-            let compId = user?.dataValues.comp_id;
-    
-            if (user) {
                 const currentPage = parseInt(ctx.match[1] || "0");
-                const data = await sendRejectedOrders(ctx, currentPage + 1, compId);
+                const data = await sendRejectedOrders(ctx, currentPage + 1, accessUser.dataValues.comp_id);
                 let message = data?.message;
                 let key3 = data?.key;
                 let key1 = data?.keyboardArray;
@@ -339,7 +285,7 @@ composer.action(/next_page_reject=(\d+)/, async (ctx) => {
                         },
                     });
                 }
-            }
+            
         } else {
             await ctx.answerCbQuery("Вы не можете использовать этого бота!", {show_alert: true} );
         }
@@ -352,14 +298,10 @@ composer.action(/old_page_reject=(\d+)/, async (ctx) => {
     try {
         const accessUser = await User.findOne({ where: { bot_id: ctx.from?.id, use_bot: true } });
         if (accessUser) {
-            let telegramId = ctx.update.callback_query.from.id;
-    
-            const user = await User.findOne({ where: { bot_id: telegramId } });
-            if (user) {
-                let compId = user.dataValues.comp_id;
+
                 const currentPage = parseInt(ctx.match[1] || "0");
                 if (currentPage > 0) {
-                    const data = await sendRejectedOrders(ctx, currentPage - 1, compId);
+                    const data = await sendRejectedOrders(ctx, currentPage - 1, accessUser.dataValues.comp_id);
                     let message = data?.message;
                     let key3 = data?.key;
                     let key1 = data?.keyboardArray;
@@ -375,7 +317,7 @@ composer.action(/old_page_reject=(\d+)/, async (ctx) => {
                 } else {
                     await ctx.answerCbQuery("Вы на первой странице!");
                 }
-            }
+            
         } else {
             await ctx.answerCbQuery("Вы не можете использовать этого бота!", {show_alert: true} );
         }
@@ -388,15 +330,10 @@ composer.action(/next_page_accept=(\d+)/, async (ctx) => {
     try {
         const accessUser = await User.findOne({ where: { bot_id: ctx.from?.id, use_bot: true } });
         if (accessUser) {
-            let telegramId = ctx.update.callback_query.from.id;
-    
-            const user = await User.findOne({ where: { bot_id: telegramId } });
-            let compId = user?.dataValues.comp_id;
-    
-            if (user) {
+
                 const currentPage = parseInt(ctx.match[1] || "0");
     
-                const data = await sendAcceptedOrders(ctx, currentPage + 1, compId);
+                const data = await sendAcceptedOrders(ctx, currentPage + 1, accessUser.dataValues.comp_id);
                 let message = data?.message;
                 let key3 = data?.key;
                 let key1 = data?.keyboardArray;
@@ -409,7 +346,7 @@ composer.action(/next_page_accept=(\d+)/, async (ctx) => {
                         },
                     });
                 }
-            }
+            
         } else {
             await ctx.answerCbQuery("Вы не можете использовать этого бота!", {show_alert: true} );
         }
@@ -422,14 +359,9 @@ composer.action(/old_page_accept=(\d+)/, async (ctx) => {
     try {
         const accessUser = await User.findOne({ where: { bot_id: ctx.from?.id, use_bot: true } });
         if (accessUser) {
-            let telegramId = ctx.update.callback_query.from.id;
-    
-            const user = await User.findOne({ where: { bot_id: telegramId } });
-            if (user) {
-                let compId = user.dataValues.comp_id;
                 const currentPage = parseInt(ctx.match[1] || "0");
     
-                const data = await sendAcceptedOrders(ctx, currentPage - 1, compId);
+                const data = await sendAcceptedOrders(ctx, currentPage - 1, accessUser.dataValues.comp_id);
                 let message = data?.message;
                 let key3 = data?.key;
                 let key1 = data?.keyboardArray;
@@ -442,7 +374,7 @@ composer.action(/old_page_accept=(\d+)/, async (ctx) => {
                         },
                     });
                 }
-            }
+            
         } else {
             await ctx.answerCbQuery("Вы не можете использовать этого бота!", {show_alert: true} );
         }
@@ -455,15 +387,9 @@ composer.action(/next_page_search=(\d+)/, async (ctx) => {
     try {
         const accessUser = await User.findOne({ where: { bot_id: ctx.from?.id, use_bot: true } });
         if (accessUser) {
-            let telegramId = ctx.update.callback_query.from.id;
-    
-            const user = await User.findOne({ where: { bot_id: telegramId } });
-            let compId = user?.dataValues.comp_id;
-    
-            if (user) {
                 const currentPage = parseInt(ctx.match[1] || "0");
                 const text = ctx.match["input"].split("=")[2];
-                const data = await searchOrders(ctx, currentPage + 1, compId, text);
+                const data = await searchOrders(ctx, currentPage + 1, accessUser.dataValues.comp_id, text);
                 let message = data?.message;
                 let key3 = data?.key;
                 let key1 = data?.keyboardArray;
@@ -476,7 +402,7 @@ composer.action(/next_page_search=(\d+)/, async (ctx) => {
                         },
                     });
                 }
-            }
+            
         } else {
             await ctx.answerCbQuery("Вы не можете использовать этого бота!", {show_alert: true} );
         }
@@ -489,15 +415,10 @@ composer.action(/old_page_search=(\d+)/, async (ctx) => {
     try {
         const accessUser = await User.findOne({ where: { bot_id: ctx.from?.id, use_bot: true } });
         if (accessUser) {
-            let telegramId = ctx.update.callback_query.from.id;
-    
-            const user = await User.findOne({ where: { bot_id: telegramId } });
-            if (user) {
-                let compId = user.dataValues.comp_id;
                 const currentPage = parseInt(ctx.match[1] || "0");
                 const text = ctx.match["input"].split("=")[2];
                 if (currentPage > 0) {
-                    const data = await searchOrders(ctx, currentPage - 1, compId, text);
+                    const data = await searchOrders(ctx, currentPage - 1, accessUser.dataValues.comp_id, text);
                     let message = data?.message;
                     let key3 = data?.key;
                     let key1 = data?.keyboardArray;
@@ -513,7 +434,7 @@ composer.action(/old_page_search=(\d+)/, async (ctx) => {
                 } else {
                     await ctx.answerCbQuery("Вы на первой странице!");
                 }
-            }
+            
         } else {
             await ctx.answerCbQuery("Вы не можете использовать этого бота!", {show_alert: true} );
         }

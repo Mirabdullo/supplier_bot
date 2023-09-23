@@ -13,7 +13,8 @@ export async function sendPageWithButton(ctx: Context, pageIndex: number, compId
         const products = await getPageProducts(pageIndex, compId);
     if (products) {
         let pageProducts = products.slice(pageIndex * PAGE_SIZE, (pageIndex + 1) * PAGE_SIZE);
-
+        console.log("product length: ", products.length);
+        console.log("page Products: ", pageProducts.length);
         if (pageProducts.length > 0) {
             const keyboard = constructInlineKeyboard(pageIndex, products.length);
 
@@ -48,7 +49,7 @@ export async function sendPageWithButton(ctx: Context, pageIndex: number, compId
                     console.log(error);
                 }
             }
-
+            console.log(products.length - PAGE_SIZE * pageIndex,  PAGE_SIZE);
             if (products.length - PAGE_SIZE * pageIndex > PAGE_SIZE) {
                 await ctx.reply("Посмотреть больше продуктов", {
                     parse_mode: "HTML",
