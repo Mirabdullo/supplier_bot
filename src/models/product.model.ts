@@ -23,10 +23,6 @@ export const WareHouseProduct = sequelize.define("storeproducts", {
         allowNull: false,
         defaultValue: true,
     },
-    is_copied: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-    },
 });
 
 
